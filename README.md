@@ -6,7 +6,7 @@ UV-A / CO₂ control, temperature and voltage/current monitoring, fault detectio
 the RGB status LED, buzzer, physical button, manual/automatic modes, command
 acknowledgement with verified state, and offline recovery.
 
-Primary owner: Developer 2. MQTT behaviour must match
+Owner: `@MosqAI/core` team (RavynX0, Hope664). MQTT behaviour must match
 [contracts/mqtt.md](https://github.com/MosqAI/mosqai-docs/blob/develop/contracts/mqtt.md).
 
 ## Technology
