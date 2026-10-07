@@ -1,0 +1,18 @@
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+
+# PlatformIO / build
+.pio/
+.vscode/*
+!.vscode/extensions.json
+# Per-device credentials and Wi-Fi config
+include/secrets.h
+certs/
