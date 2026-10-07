@@ -7,7 +7,7 @@ the RGB status LED, buzzer, physical button, manual/automatic modes, command
 acknowledgement with verified state, and offline recovery.
 
 Primary owner: Developer 2. MQTT behaviour must match
-[contracts/mqtt.md](https://github.com/MosqAI-Shield/mosqai-docs/blob/develop/contracts/mqtt.md).
+[contracts/mqtt.md](https://github.com/MosqAI/mosqai-docs/blob/develop/contracts/mqtt.md).
 
 ## Technology
 
@@ -54,4 +54,4 @@ a later milestone.
 
 Branch from `develop` (`feature/…`, `fix/…`, `refactor/…`), use Conventional
 Commits, open a PR into `develop`, one approval. Full rules:
-[mosqai-docs/workflow.md](https://github.com/MosqAI-Shield/mosqai-docs/blob/develop/workflow.md).
+[mosqai-docs/workflow.md](https://github.com/MosqAI/mosqai-docs/blob/develop/workflow.md).
