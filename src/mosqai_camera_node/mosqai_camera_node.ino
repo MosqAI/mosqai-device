@@ -2,11 +2,11 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "YOUR_WIFI_SSID";          // Replace with your local Wi-Fi Name
-const char* password = "YOUR_WIFI_PASSWORD";  // Replace with your local Wi-Fi Password
+const char* ssid = "RCA-OFFICE";          
+const char* password = "RCA@2024";  
 
-const char* serverUrl = "http://YOUR_COMPUTER_LOCAL_IP:8000/api/v1/trap/frame";
-const char* healthUrl = "http://YOUR_COMPUTER_LOCAL_IP:8000/api/v1/health";
+const char* serverUrl = "http://10.12.75.42:8000/api/v1/trap/frame";
+const char* healthUrl = "http://10.12.75.42:8000/api/v1/health";
 const String trapId = "TRAP-PROTOTYPE-01";
 
 #define PWDN_GPIO_NUM     32
@@ -44,8 +44,8 @@ void setup() {
   config.pin_d6 = Y8_GPIO_NUM;
   config.pin_d7 = Y9_GPIO_NUM;
   config.pin_xclk = XCLK_GPIO_NUM;
-  config.pin_sscb_d = SIOD_GPIO_NUM;
-  config.pin_sscb_c = SIOC_GPIO_NUM;
+  config.pin_sscb_sda = SIOD_GPIO_NUM;
+  config.pin_sscb_scl = SIOC_GPIO_NUM;
   config.pin_vsync = VSYNC_GPIO_NUM;
   config.pin_href = HREF_GPIO_NUM;
   config.pin_pclk = PCLK_GPIO_NUM;
