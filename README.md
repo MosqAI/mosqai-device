@@ -1,57 +1,39 @@
-# mosqai-device
+# MOSQAI Shield - ESP32-CAM Device Firmware Node
 
-ESP32-CAM firmware for the MosqAI Shield device. It handles Wi-Fi, device
-identity, secure MQTT, heartbeat, camera capture and HTTPS image upload, fan /
-UV-A / CO₂ control, temperature and voltage/current monitoring, fault detection,
-the RGB status LED, buzzer, physical button, manual/automatic modes, command
-acknowledgement with verified state, and offline recovery.
+This repository handles the core configuration, flash arrays, and lifecycle loop setups for the hardware-based mosquito tracking container trap node.
 
-Owner: `@MosqAI/core` team (RavynX0, Hope664). MQTT behaviour must match
-[contracts/mqtt.md](https://github.com/MosqAI/mosqai-docs/blob/develop/contracts/mqtt.md).
+## Hardware Specifications & Platform Setup
+This codebase is written and compiled explicitly for the **AI-Thinker ESP32-CAM development board** bundled with an OmniVision **OV2640 camera sensor module**.
 
-## Technology
+### Compilation & Flash Configurations:
+1. Open this directory inside the **Arduino IDE**.
+2. Navigate to `Tools` -> `Board` -> `ESP32 Arduino` and select **ESP32 Wrover Module** (or *AI Thinker ESP32-CAM* depending on your core library installations).
+3. Set your internal compilation properties as follows:
+   * **Upload Speed:** `115200`
+   * **Flash Frequency:** `80MHz`
+   * **Flash Mode:** `QIO`
+   * **Partition Scheme:** `Huge APP (3MB No OTA/1MB SPIFFS)` — *Required to safely store the heavy JPEG matrix array streaming allocations!*
+   * **PSRAM:** `Enabled`
 
-C/C++ · PlatformIO · Arduino-ESP32 framework · MQTT client · esp32-camera
+---
 
-## Setup
+## Data Pipeline & Endpoint Communication Structure
+The node runs an **Hourly Delta-Polling Framework** to maximize outdoor battery life:
+1. On boot, the node initializes the OV2640 sensor configuration bounds to **VGA (640x480)** to match our YOLOv8 ONNX model constraints.
+2. The board performs an immediate network handshake check against `GET /api/v1/health`.
+3. Every hour, the microcontroller captures a frame, structures it into an industry-standard `multipart/form-data` payload array stream, and dispatches it over the local network via `POST /api/v1/trap/frame`.
 
-> Not scaffolded yet. First M1 issue: "Initialize ESP32 firmware".
+---
 
-Planned: install the PlatformIO extension for VS Code, copy
-`include/secrets.example.h` → `include/secrets.h` (git-ignored), then
-`pio run -t upload` and `pio device monitor`.
-
-## Environment / configuration
-
-Wi-Fi credentials, device ID, MQTT credentials and the CA certificate are
-per-device. They live in `include/secrets.h` / `certs/`, which are both
-git-ignored. Production provisioning (writing credentials to NVS at
-manufacturing time) is tracked as a separate issue.
-
-## Hardware rules
-
-- Fan, UV-A LEDs and CO₂ actuator are switched through MOSFET or driver stages. They are never driven directly from GPIO.
-- After applying a command, re-read the actual state (current sense, tachometer, pin feedback) before sending the ack.
-- Report what the hardware is doing, not what was requested.
-
-## Development
-
-The firmware is a set of non-blocking modules (`net`, `mqtt`, `commands`,
-`actuators`, `sensors`, `camera`, `status_led`, `scheduler`) driven by the main
-loop. Long blocking calls are not allowed, so heartbeats and acks never stall.
-
-## Testing
-
-Native unit tests (`pio test -e native`) cover the command parser, state machine
-and schedule evaluation. Hardware-in-the-loop checks are listed per release.
-
-## Deployment
-
-Versioned firmware binaries are attached to GitHub Releases. OTA updates come in
-a later milestone.
-
-## Contribution workflow
-
-Branch from `develop` (`feature/…`, `fix/…`, `refactor/…`), use Conventional
-Commits, open a PR into `develop`, one approval. Full rules:
-[mosqai-docs/workflow.md](https://github.com/MosqAI/mosqai-docs/blob/develop/workflow.md).
+## Local Verification & Debug Testing Guide
+To verify end-to-end hardware-to-AI connectivity before merging your work branch:
+1. Keep your local AI Docker container active (`docker run -d -p 8000:8000 --name mosqai-ai-container mosqai-ai-core`).
+2. Flash this firmware code to your physical ESP32-CAM board.
+3. Keep the device plugged into your computer and open the **Arduino Serial Monitor** set to **`115200 baud`**.
+4. Check the logs: you will see the network connection establish, followed by an output response from the server displaying your exact target metrics JSON tracking schema:
+   ```json
+   {
+       "image_uid": "mosqai_traps/trap_TRAP-PROTOTYPE-01/frame_1029432",
+       "new_mosquitoes": 0
+   }
+   ```
