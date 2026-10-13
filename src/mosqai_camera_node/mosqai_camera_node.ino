@@ -1,13 +1,29 @@
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 
-const char* ssid = "RCA-OFFICE";          
-const char* password = "RCA@2024";  
+// Wi-Fi, AI server address, trap id and service token live in secrets.h, which
+// git ignores. Copy secrets.example.h to secrets.h and fill it in.
+#include "secrets.h"
 
-const char* serverUrl = "http://10.12.75.42:8000/api/v1/trap/frame";
-const char* healthUrl = "http://10.12.75.42:8000/api/v1/health";
-const String trapId = "TRAP-PROTOTYPE-01";
+const String serverUrl = String(AI_SERVER_URL) + "/api/v1/trap/frame";
+const String healthUrl = String(AI_SERVER_URL) + "/api/v1/health";
+const String trapId = TRAP_ID;
+
+// Plain client for a local http:// server, TLS client for a hosted https:// one.
+WiFiClient plainClient;
+WiFiClientSecure tlsClient;
+
+void beginRequest(HTTPClient &http, const String &url) {
+  if (url.startsWith("https://")) {
+    // Encrypted, but the server certificate is not checked yet (no CA bundle on the board).
+    tlsClient.setInsecure();
+    http.begin(tlsClient, url);
+  } else {
+    http.begin(plainClient, url);
+  }
+}
 
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
@@ -64,7 +80,7 @@ void setup() {
     return;
   }
 
-  WiFi.begin(ssid, password);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to local Wi-Fi Infrastructure");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -85,7 +101,7 @@ void loop() {
 void pingServerHealth() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-    http.begin(healthUrl);
+    beginRequest(http, healthUrl);
     int httpCode = http.GET();
     if (httpCode == 200) {
       Serial.println("[BOOTSTRAP]: Handshake verified! AI Cluster is responsive.");
@@ -109,7 +125,11 @@ void captureAndTransmitFrame() {
   }
 
   HTTPClient http;
-  http.begin(serverUrl);
+  beginRequest(http, serverUrl);
+  // The AI service only accepts frames that carry the shared service token.
+  http.addHeader("X-Service-Token", AI_SERVICE_TOKEN);
+  // Hosted servers on free plans can take ~50 s to wake up.
+  http.setTimeout(60000);
 
   String boundary = "----MosqAiBoundaryGrid777";
   http.addHeader("Content-Type", "multipart/form-data; boundary=" + boundary);

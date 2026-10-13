@@ -7,6 +7,7 @@ This codebase is written and compiled explicitly for the **AI-Thinker ESP32-CAM 
 
 ### Compilation & Flash Configurations:
 1. Open this directory inside the **Arduino IDE**.
+   Copy `src/mosqai_camera_node/secrets.example.h` to `secrets.h` in the same folder and fill in the Wi-Fi, the AI server address, the trap id and the AI service token. `secrets.h` is git-ignored: never put real passwords in the `.ino`.
 2. Navigate to `Tools` -> `Board` -> `ESP32 Arduino` and select **ESP32 Wrover Module** (or *AI Thinker ESP32-CAM* depending on your core library installations).
 3. Set your internal compilation properties as follows:
    * **Upload Speed:** `115200`

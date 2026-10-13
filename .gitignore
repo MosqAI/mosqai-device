@@ -16,3 +16,4 @@ secrets/
 # Per-device credentials and Wi-Fi config
 include/secrets.h
 certs/
+src/mosqai_camera_node/secrets.h
