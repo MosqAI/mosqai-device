@@ -9,10 +9,11 @@
 *.p12
 secrets/
 
-# PlatformIO / build
-.pio/
+# Per-device credentials and Wi-Fi config
+secrets.h
+certs/
+
+# Editor / build output
 .vscode/*
 !.vscode/extensions.json
-# Per-device credentials and Wi-Fi config
-include/secrets.h
-certs/
+build/
